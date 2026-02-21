@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gemini AI Chat</title>
+    <title>우영이엔텍 AI 비서</title>
     <style>
         body { font-family: 'Malgun Gothic', sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; padding: 20px; }
         .chat-card { width: 100%; max-width: 500px; background: white; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); overflow: hidden; }
@@ -12,7 +12,7 @@
         .input-area { display: flex; padding: 15px; gap: 10px; }
         input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 25px; outline: none; }
         button { padding: 10px 20px; background: #1a73e8; color: white; border: none; border-radius: 25px; cursor: pointer; }
-        .msg { padding: 10px 15px; border-radius: 15px; max-width: 80%; line-height: 1.4; }
+        .msg { padding: 10px 15px; border-radius: 15px; max-width: 80%; line-height: 1.4; word-break: break-all; }
         .user { align-self: flex-end; background: #e3f2fd; color: #0d47a1; }
         .ai { align-self: flex-start; background: #f1f3f4; color: #3c4043; }
     </style>
@@ -22,21 +22,21 @@
         <div class="header">우영이엔텍 AI 비서</div>
         <div id="chat-window"></div>
         <div class="input-area">
-            <input type="text" id="user-input" placeholder="궁금한 것을 물어보세요...">
+            <input type="text" id="user-input" placeholder="궁금한 것을 물어보세요..." onkeyup="if(window.event.keyCode==13){sendMessage()}">
             <button onclick="sendMessage()">전송</button>
         </div>
     </div>
 
     <script>
-        const API_KEY = "AIzaSyAq8oumDyDGgY1zi8RuUbUX53FNa2m2_4g"; // 발급받은 API 키를 여기에 넣으세요!
+        // 반드시 아까 확인한 Tier 1 등급의 xC14로 끝나는 키를 넣어야 합니다.
+        const API_KEY = "AIzaSyDtOc88A4zCrdV3i_kfwChuHemKb571zvA"; 
 
         async function sendMessage() {
             const input = document.getElementById('user-input');
-            const window = document.getElementById('chat-window');
+            const chatWindow = document.getElementById('chat-window');
             if(!input.value) return;
 
-            // 내 메시지 표시
-            window.innerHTML += `<div class="msg user">${input.value}</div>`;
+            chatWindow.innerHTML += `<div class="msg user">${input.value}</div>`;
             const text = input.value;
             input.value = '';
 
@@ -46,23 +46,21 @@
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({"contents": [{"parts":[{"text": text}]}]})
                 });
+                
                 const data = await response.json();
-                const aiResponse = data.candidates[0].content.parts[0].text;
-                window.innerHTML += `<div class="msg ai">${aiResponse}</div>`;
+                
+                if (data.error) {
+                    // 구글이 보내는 진짜 에러 메시지를 화면에 표시합니다.
+                    chatWindow.innerHTML += `<div class="msg ai">서버 응답 오류: ${data.error.message}</div>`;
+                } else {
+                    const aiResponse = data.candidates[0].content.parts[0].text;
+                    chatWindow.innerHTML += `<div class="msg ai">${aiResponse}</div>`;
+                }
             } catch (e) {
-                window.innerHTML += `<div class="msg ai">오류가 발생했습니다. API 키를 확인해주세요.</div>`;
+                chatWindow.innerHTML += `<div class="msg ai">연결 오류: 인터넷 상태를 확인해주세요.</div>`;
             }
-            window.scrollTop = window.scrollHeight;
+            chatWindow.scrollTop = chatWindow.scrollHeight;
         }
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
