@@ -28,14 +28,11 @@
     </div>
 
     <script>
-       // 1. 구글 AI 스튜디오에서 발급받은 본인의 API 키를 입력하세요
-const API_KEY = "AIzaSyAdHdiq-4qWD__qe9ZWb-tnakFgnjIxC14";
+       // 우영이앤텍 전용 AI 비서 코드
+const API_KEY = "AIzaSyAdHdiq-4qWD__qe9ZWb-tnakFgnjIxC14"; 
+const MODEL_NAME = "gemini-1.5-flash"; 
 
 async function getAIResponse(userInput) {
-    // 2. 모델 명칭에서 'models/'를 제거하고 정확한 이름을 사용합니다.
-    const MODEL_NAME = "gemini-1.5-flash"; 
-    
-    // 3. API 호출 주소 (v1beta 버전이 가장 안정적입니다)
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${API_KEY}`;
 
     try {
@@ -48,17 +45,27 @@ async function getAIResponse(userInput) {
         });
 
         const data = await response.json();
-
-        if (data.error) {
-            console.error("API 응답 에러:", data.error.message);
-            return "서버 응답 오류가 발생했습니다. API 키를 확인해주세요.";
+        
+        if (data.candidates && data.candidates[0].content) {
+            return data.candidates[0].content.parts[0].text;
+        } else {
+            return "답변을 생성하는 중에 문제가 발생했습니다.";
         }
-
-        // 정상적으로 답변 반환
-        return data.candidates[0].content.parts[0].text;
-
     } catch (error) {
-        console.error("네트워크 연결 오류:", error);
-        return "연결 오류: 인터넷 상태나 API 설정을 확인해주세요.";
+        return "서버와 연결할 수 없습니다. 잠시 후 다시 시도해주세요.";
     }
+}
+
+// 화면에 메시지를 표시하는 함수 (기존 HTML 구조에 맞게 연동)
+async function sendMessage() {
+    const inputField = document.querySelector('input');
+    const messageContainer = document.querySelector('.chat-container'); // 실제 클래스명에 맞춰 수정 필요
+    
+    if (!inputField.value.trim()) return;
+
+    const userText = inputField.value;
+    // (여기에 사용자 메시지를 화면에 추가하는 코드를 넣으세요)
+
+    const aiResponse = await getAIResponse(userText);
+    // (여기에 AI 답변을 화면에 추가하는 코드를 넣으세요)
 }
